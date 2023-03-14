@@ -12,8 +12,9 @@ import {
     Title,
     Text,
     useMantineColorScheme,
+    Button,
 } from "@mantine/core";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useStateGridDB } from "./stores/states/stateGridDB";
 import { IconPlus } from "@tabler/icons-react";
 
@@ -21,6 +22,8 @@ const App: FC = () => {
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
     const { masterGrid, stateGrids } = useStateGridDB();
+
+    const [ activeState, setActiveState ] = useState(-1);
 
     return (
         <Grid
@@ -38,18 +41,28 @@ const App: FC = () => {
                 <Navbar height="100vh" width={{ sm: 300 }} p="md">
                     <Navbar.Section grow>
                         <Group position="center">
-                            <Title>
-                                State Generator
-                            </Title>
+                            <Title>State Generator</Title>
                         </Group>
 
                         <Divider my="sm" />
+
+                        <Button onClick={() => setActiveState(-1)} fullWidth>Main Workspace</Button>
+
+                        {
+                            stateGrids.map((stateGrid, index) => (
+                                <Button onClick={() => setActiveState(index)} fullWidth>State Grid #{index}</Button>
+                            ))
+                        }
                     </Navbar.Section>
                     <Navbar.Section>
-                        <Flex onClick={(event) => event.preventDefault()} align="center">
+                        <Divider my="sm" />
+                        
+                        <Button onClick={(event) => {
+                            
+                        }} fullWidth>
                             <IconPlus stroke={1.5} />
-                            <Text>Change account</Text>
-                        </Flex>
+                            <Text>Add New State Graph</Text>
+                        </Button>
                     </Navbar.Section>
                 </Navbar>
             </Grid.Col>
@@ -59,9 +72,7 @@ const App: FC = () => {
                         display: "grid",
                         gridTemplateColumns: "auto auto auto",
                     })}
-                >
-
-                </Box>
+                ></Box>
             </Grid.Col>
         </Grid>
     );
