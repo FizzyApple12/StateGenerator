@@ -18,12 +18,10 @@
         "@mantine/notifications": "^5.10.5",
         "@tabler/icons": "^2.6.0",
         "@tabler/icons-react": "^2.6.0",
-        "pako": "^2.1.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-qr-code": "^2.0.11",
         "react-router-dom": "^6.8.2",
-        "react-web-qr-reader": "^1.0.4",
+        "reactflow": "^11.6.0",
         "zod": "^3.21.3",
         "zustand": "^4.3.5"
     },

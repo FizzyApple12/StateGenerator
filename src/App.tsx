@@ -1,29 +1,27 @@
 import {
-    ActionIcon,
-    Badge,
-    Box,
-    Code,
+    Button,
     Divider,
-    Flex,
     Grid,
     Group,
     Navbar,
-    Paper,
-    Title,
     Text,
+    Title,
     useMantineColorScheme,
-    Button,
 } from "@mantine/core";
-import { FC, useState } from "react";
-import { useStateGridDB } from "./stores/states/stateGridDB";
 import { IconPlus } from "@tabler/icons-react";
+import { FC, useState } from "react";
+import { Graph, GraphEditor } from "./components/GraphEditor";
+import { useGraph } from "./components/GraphProvider";
+import { useStateGridDB } from "./stores/states/stateGridDB";
 
 const App: FC = () => {
     const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
     const { masterGrid, stateGrids } = useStateGridDB();
 
-    const [ activeState, setActiveState ] = useState(-1);
+    const [activeState, setActiveState] = useState(-1);
+
+    const { graph } = useGraph();
 
     return (
         <Grid
@@ -46,20 +44,23 @@ const App: FC = () => {
 
                         <Divider my="sm" />
 
-                        <Button onClick={() => setActiveState(-1)} fullWidth>Main Workspace</Button>
+                        <Button onClick={() => setActiveState(-1)} fullWidth>
+                            Main Workspace
+                        </Button>
 
-                        {
-                            stateGrids.map((stateGrid, index) => (
-                                <Button onClick={() => setActiveState(index)} fullWidth>State Grid #{index}</Button>
-                            ))
-                        }
+                        {stateGrids.map((stateGrid, index) => (
+                            <Button
+                                onClick={() => setActiveState(index)}
+                                fullWidth
+                            >
+                                State Grid #{index}
+                            </Button>
+                        ))}
                     </Navbar.Section>
                     <Navbar.Section>
                         <Divider my="sm" />
-                        
-                        <Button onClick={(event) => {
-                            
-                        }} fullWidth>
+
+                        <Button onClick={(event) => {}} fullWidth>
                             <IconPlus stroke={1.5} />
                             <Text>Add New State Graph</Text>
                         </Button>
@@ -67,12 +68,12 @@ const App: FC = () => {
                 </Navbar>
             </Grid.Col>
             <Grid.Col span={"auto"} p={0}>
-                <Box
-                    sx={(theme) => ({
-                        display: "grid",
-                        gridTemplateColumns: "auto auto auto",
-                    })}
-                ></Box>
+                <GraphEditor
+                    graph={graph}
+                    onChange={(graph: Graph): void => {
+                        throw new Error("Function not implemented.");
+                    }}
+                />
             </Grid.Col>
         </Grid>
     );
