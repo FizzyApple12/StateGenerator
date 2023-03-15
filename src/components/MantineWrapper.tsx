@@ -7,6 +7,8 @@ import { useLocalStorage } from "@mantine/hooks";
 import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
 import { FC, PropsWithChildren } from "react";
+import { GraphContextProvider } from "../contexts/GraphContext";
+import { SubstatesContextProvider } from "../contexts/SubStatesContext";
 
 export const MantineWrapper: FC<PropsWithChildren<{}>> = ({ children }) => {
     const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -43,7 +45,11 @@ export const MantineWrapper: FC<PropsWithChildren<{}>> = ({ children }) => {
                             size: "xl",
                         }}
                     >
-                        {children}
+                        <GraphContextProvider>
+                            <SubstatesContextProvider>
+                                {children}
+                            </SubstatesContextProvider>
+                        </GraphContextProvider>
                     </ModalsProvider>
                 </NotificationsProvider>
             </MantineProvider>

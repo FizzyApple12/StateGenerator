@@ -1,23 +1,25 @@
-import { ActionIcon, Box } from "@mantine/core";
+import { ActionIcon, Box, Button, Menu, MultiSelect, Popover, Select, Text, TextInput } from "@mantine/core";
 import { IconNewSection, IconVariablePlus, IconZoomIn, IconZoomOut, IconAspectRatio, IconLockAccess, IconLockAccessOff } from "@tabler/icons-react";
-import { FC } from "react";
+import { FC, useContext, useState } from "react";
 import ReactFlow, {
     Background,
     BackgroundVariant,
     ControlButton,
     Controls, MiniMap,
-    Node, applyEdgeChanges, Edge, applyNodeChanges, addEdge
+    Node, applyEdgeChanges, Edge, applyNodeChanges, addEdge, useReactFlow, MarkerType, NodeTypes, EdgeTypes
 } from "reactflow";
 import "reactflow/dist/style.css";
 import z from "zod";
-
-export const StateType = () => z.string();
-export type StateType = z.infer<ReturnType<typeof StateType>>;
-
-export const StateValue = () => z.string();
-export type StateValue = z.infer<ReturnType<typeof StateValue>>;
+import GraphEditorControls from "./GraphEditorControls";
+import { modals } from "@mantine/modals";
+import { SubstatesContext } from "../contexts/SubStatesContext";
+import { StateNode } from "./StateNode";
+import { FloatingEdge } from "./FloatingEdge";
+import { FloatingConnectionLine } from "./FloatingConnectionLine";
 
 export type Graph = {
+    name: string,
+
     nodes: Node[],
 
     connections: Edge[],
@@ -28,7 +30,51 @@ type GraphEditorParams = {
     onChange: (graph: Graph) => void;
 };
 
+const nodeTypes: NodeTypes = {
+    stateNode: StateNode,
+};
+
+const edgeTypes: EdgeTypes = {
+    floating: FloatingEdge,
+};
+
+const defaultEdgeOptions = {
+    type: 'floating',
+    markerEnd: {
+        type: MarkerType.ArrowClosed,
+    },
+};
+
 export const GraphEditor: FC<GraphEditorParams> = ({ graph, onChange }) => {
+    const [opened, setOpened] = useState(false);
+
+    const [values, setValues] = useState<{ [key: string]: string }>({});
+
+    const {
+        substates,
+    } = useContext(SubstatesContext);
+
+    const addNode = () => {
+        onChange({
+            ...graph,
+            nodes: applyNodeChanges([{
+                type: "add",
+                item: {
+                    id: `${graph.nodes.length}`,
+                    position: { x: 0, y: 0 },
+                    type: 'stateNode',
+                    data: {
+                        values: values
+                    },
+                    dragging: true
+                }
+            }], graph.nodes)
+        })
+
+        setValues({});
+        setOpened(false);
+    }
+
     return (
         <Box
             sx={{
@@ -39,41 +85,55 @@ export const GraphEditor: FC<GraphEditorParams> = ({ graph, onChange }) => {
             <ReactFlow
                 nodes={graph.nodes}
                 edges={graph.connections}
-                onNodesChange={(nodeChanges) => {
-                    graph.nodes = applyNodeChanges(nodeChanges, graph.nodes);
-
-                    onChange(graph);
-                }}
-                onEdgesChange={(edgeChanges) => {
-                    graph.connections = applyEdgeChanges(edgeChanges, graph.connections);
-
-                    onChange(graph);
-                }}
-                onConnect={(connection) => {
-                    graph.connections = addEdge(connection, graph.connections);
-
-                    onChange(graph);
-                }}
-                
+                onNodesChange={(nodeChanges) =>
+                    onChange({
+                        ...graph,
+                        nodes: applyNodeChanges(nodeChanges, graph.nodes)
+                    })
+                }
+                onEdgesChange={(edgeChanges) =>
+                    onChange({
+                        ...graph,
+                        connections: applyEdgeChanges(edgeChanges, graph.connections)
+                    })
+                }
+                onConnect={(connection) =>
+                    onChange({
+                        ...graph,
+                        connections: addEdge(connection, graph.connections)
+                    })
+                }
+                nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
+                defaultEdgeOptions={defaultEdgeOptions}
+                connectionLineComponent={FloatingConnectionLine}
             >
-                <Controls showZoom={false} showFitView={false} showInteractive={false}>
-                    <ActionIcon variant="outline" size={32} sx={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0}}>
-                        <IconZoomIn/>
-                    </ActionIcon >
-                    <ActionIcon variant="outline" size={32} radius={0}>
-                        <IconZoomOut/>
-                    </ActionIcon>
-                    <ActionIcon variant="outline" size={32} radius={0}>
-                        <IconAspectRatio/>
-                    </ActionIcon>
-                    <ActionIcon variant="outline" size={32} radius={0}>
-                        <IconLockAccess/>
-                        <IconLockAccessOff/>
-                    </ActionIcon>
-                    <ActionIcon variant="outline" size={32} sx={{ borderTopLeftRadius: 0, borderTopRightRadius: 0}}>
-                        <IconVariablePlus/>
-                    </ActionIcon>
-                </Controls>
+
+                <Popover opened={opened} position="right">
+                    <Popover.Target>
+                        <GraphEditorControls onToggleAddMenu={() => setOpened(!opened)} />
+                    </Popover.Target>
+                    <Popover.Dropdown sx={(theme) => ({ background: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white })}>
+                        <Text>Add New State</Text>
+
+                        {
+                            substates.map((substate) => (
+                                <Select key={substate.name} label={substate.name} data={substate.values} value={values[substate.name]} onChange={(value) => {
+                                    if (value) {
+                                        setValues({
+                                            ...values,
+                                            [substate.name]: value
+                                        })
+                                    }
+                                }} />
+                            ))
+                        }
+
+                        <Button onClick={addNode} disabled={
+                            !substates.map((substate) => values[substate.name]).reduce((previous, current) => (current) ? previous : false, true)
+                        } fullWidth mt={16}>Add</Button>
+                    </Popover.Dropdown>
+                </Popover>
 
                 <MiniMap />
 
