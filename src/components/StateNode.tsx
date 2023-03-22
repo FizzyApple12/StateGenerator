@@ -2,9 +2,11 @@ import { Box, Card, Paper, Text, Image, Group, Badge, Button, Kbd } from '@manti
 import { FC, useCallback } from 'react';
 import { Handle, Position, useStore, Node, WrapNodeProps, NodeProps } from 'reactflow';
 
-export type StateNodeProps = NodeProps<{
+export type StateNodeData = {
     values: { [key: string]: string }
-}>
+}
+
+export type StateNodeProps = NodeProps<StateNodeData>
 
 export type ConnectionNodeIdState = {
     connectionNodeId: string | null

@@ -17,6 +17,7 @@ import { FC, useContext, useState } from "react";
 import { Graph, GraphEditor } from "./components/GraphEditor";
 import { GraphContext } from "./contexts/GraphContext";
 import { SubstatesContext } from "./contexts/SubStatesContext";
+import { generate } from "./generation/java";
 
 const App: FC = () => {
     const {
@@ -62,6 +63,22 @@ const App: FC = () => {
 
         setNewSubstateValueName("");
     }
+
+    const downloadBlob = (fileBlob: Blob) => {
+        const element = document.createElement("a");
+
+        const time = new Date();
+        const dateString = `${time.getMonth()}-${time.getDay()}-${time.getHours()}-${time.getMinutes()}-${time.getSeconds()}`;
+
+        element.href = URL.createObjectURL(fileBlob);
+        element.download = `data-${dateString}.${fileBlob.type.split("/")[1]}`;
+
+        document.body.appendChild(element); // Required for this to work in FireFox
+
+        element.click();
+
+        element.remove();
+    };
 
     return (
         <Grid
@@ -161,6 +178,11 @@ const App: FC = () => {
                                 <IconCodePlus />
                             </ActionIcon>
                         } />
+                    </Navbar.Section>
+                    <Navbar.Section>
+                        <Divider my="sm" />
+
+                        <Button fullWidth onClick={() => downloadBlob(new Blob([ generate(graph) ], { type: 'text/java'}))}>Export Connections</Button>
                     </Navbar.Section>
                 </Navbar>
             </Grid.Col>

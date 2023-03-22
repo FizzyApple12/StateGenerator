@@ -16,6 +16,7 @@ import { SubstatesContext } from "../contexts/SubStatesContext";
 import { StateNode } from "./StateNode";
 import { FloatingEdge } from "./FloatingEdge";
 import { FloatingConnectionLine } from "./FloatingConnectionLine";
+import hash from 'object-hash';
 
 export type Graph = {
     name: string,
@@ -60,7 +61,7 @@ export const GraphEditor: FC<GraphEditorParams> = ({ graph, onChange }) => {
             nodes: applyNodeChanges([{
                 type: "add",
                 item: {
-                    id: `${graph.nodes.length}`,
+                    id: hash(values),
                     position: { x: 0, y: 0 },
                     type: 'stateNode',
                     data: {

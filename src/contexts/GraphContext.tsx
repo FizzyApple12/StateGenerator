@@ -80,16 +80,32 @@ export const GraphContextProvider: FC<PropsWithChildren> = ({
     }
 
     const updateActiveGraph = (graph: Graph) => {
+        const filteredNodes = graph.nodes.filter((node, index, nodes) => {
+            return nodes.findIndex((nodeCheck) => node.id == nodeCheck.id) == index;
+        })
+
+        const correctedGraph: Graph = {
+            name: graph.name,
+
+            nodes: filteredNodes,
+            
+            connections: graph.connections.filter((edge, index, edges) => {
+                return (edges.findIndex((edgeCheck) => edge.target == edgeCheck.target && edge.source == edgeCheck.source) == index)
+                    && filteredNodes.find((node) => node.id == edge.source)
+                    && filteredNodes.find((node) => node.id == edge.target);
+            })
+        };
+
         if (workspace.selectedGraph == -1) {
             setWorkspace({
                 ...workspace,
-                mainGraph: graph
+                mainGraph: correctedGraph
             });
         } else {
             setWorkspace({
                 ...workspace,
                 subGraphs: workspace.subGraphs.map((storedGraph, index) => {
-                    if (index == workspace.selectedGraph) return graph;
+                    if (index == workspace.selectedGraph) return correctedGraph;
                     return storedGraph;
                 })
             });
