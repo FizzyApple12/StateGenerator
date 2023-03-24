@@ -1,9 +1,10 @@
 import { Graph } from "../../components/GraphEditor";
 import connectionsTemplate from "./ConnectionsTemplate.java?raw";
+import enumTemplate from "./EnumTemplate.java?raw";
 import { StateNodeData } from "../../components/StateNode";
 import prettier from "prettier/standalone";
 import babel from "@babel/parser";
-import prettierPluginJava from 'prettier-plugin-java';
+import { Substate } from "../../contexts/SubStatesContext";
 
 export const generateConnections = (graph: Graph): string => {
     const connections = graph.connections
@@ -32,6 +33,22 @@ export const generateConnections = (graph: Graph): string => {
     ).replace(
         "{$StateName}",
         `${graph.stateMachineName}State`
+    );
+
+    return newFile;
+
+    //return prettier.format(newFile, { parser: "java", plugins: [ prettierPluginJava ] });
+};
+
+export const generateState = (substate: Substate): string => {
+    const states = substate.values.join(",\n    ");
+
+    const newFile = enumTemplate.replace(
+        "{$States}",
+        states
+    ).replace(
+        "{$EnumName}",
+        `${substate.name}`
     );
 
     return newFile;

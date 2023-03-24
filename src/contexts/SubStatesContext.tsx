@@ -13,7 +13,7 @@ const setLocalStorage = (key: string, value: any) => {
     window.localStorage.setItem(key, JSON.stringify(value));
 }
 
-type Substate = {
+export type Substate = {
     name: string,
 
     values: string[]
@@ -23,6 +23,7 @@ type SubstatesContextType = {
     substates: Substate[]
 
     addSubstate: (name: string, value: string[]) => void
+    addToSubstate: (name: string, value: string) => void
     removeSubstate: (name: string) => void
 }
 
@@ -30,6 +31,7 @@ export const SubstatesContext = createContext<SubstatesContextType>(getLocalStor
     substates: [],
 
     addSubstate: (n, j) => { },
+    addToSubstate: (n) => { },
     removeSubstate: (n) => { },
 });
 
@@ -41,6 +43,20 @@ export const SubstatesContextProvider: FC<PropsWithChildren> = ({
     setLocalStorage("Substates", substates);
 
     const addSubstate = (name: string, values: string[]) => {
+        const substate = substates.findIndex((value) => value.name == name);
+        if (substate >= 0) {
+            let newSubstates = substates;
+
+            newSubstates[substate] = {
+                name,
+                values
+            };
+
+            setSubStates(newSubstates)
+
+            return;
+        }
+
         setSubStates([
             ...substates,
             {
@@ -48,6 +64,23 @@ export const SubstatesContextProvider: FC<PropsWithChildren> = ({
                 values
             }
         ])
+    }
+
+    const addToSubstate = (name: string, value: string) => {
+        setSubStates(substates.map((substate) => {
+            if (substate.name == name) {
+                return {
+                    name,
+
+                    values: [
+                        ...substate.values,
+                        value
+                    ]
+                }
+            }
+
+            return substate;
+        }));
     }
 
     const removeSubstate = (name: string) => {
@@ -58,6 +91,7 @@ export const SubstatesContextProvider: FC<PropsWithChildren> = ({
         <SubstatesContext.Provider value={{
             substates: substates,
             addSubstate,
+            addToSubstate,
             removeSubstate
         }}>
             {children}
