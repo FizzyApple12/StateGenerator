@@ -40,7 +40,7 @@ import { openConfirmModal } from "@mantine/modals";
 const App: FC = () => {
     const { graph, updateGraph } = useContext(GraphContext);
 
-    const { substates, addSubstate, removeSubstate, addToSubstate } =
+    const { substates, addSubstate, removeSubstate, addToSubstate, removeFromSubstate } =
         useContext(SubstatesContext);
 
     const [newSubstateName, setNewSubstateName] = useState("");
@@ -63,9 +63,27 @@ const App: FC = () => {
         setNewSubstateName("");
     }
 
+    const removeFromASubstate = (name: string, value: string) => {
+        openConfirmModal({
+            title: `Delete ${value} from ${name}?`,
+            centered: true,
+            children: (
+                <Text size="sm">
+                    Are you sure you want to delete {value} from {name}?
+                </Text>
+            ),
+            labels: { confirm: 'Delete', cancel: "Cancel" },
+            confirmProps: { color: 'red' },
+            onConfirm: () => removeFromSubstate(
+                name,
+                value
+            ),
+        });
+    }
+
     const removeASubstate = (value: string) => {
         openConfirmModal({
-            title: `Dalete ${value} substate?`,
+            title: `Delete ${value} substate?`,
             centered: true,
             children: (
                 <Text size="sm">
@@ -277,7 +295,7 @@ const App: FC = () => {
                                                 <ActionIcon
                                                     color="red"
                                                     variant="outline"
-                                                    onClick={() => { }}
+                                                    onClick={() => removeFromASubstate(substate.name, value)}
                                                     size={24}
                                                 >
                                                     <IconTrash />
