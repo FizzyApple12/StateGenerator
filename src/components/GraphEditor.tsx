@@ -19,7 +19,7 @@ import { FloatingConnectionLine } from "./FloatingConnectionLine";
 import hash from 'object-hash';
 
 export type Graph = {
-    name: string,
+    stateMachineName: string,
 
     nodes: Node[],
 
