@@ -19,7 +19,7 @@ export const generateConnections = (graph: Graph): string => {
 
             return `add(new StateConnection<${graph.stateMachineName}State>(
                 new ${graph.stateMachineName}State(${Object.entries(fromNodeData.values).map((value) => `${value[0]}.${value[1]}`).join(", ")}),
-                new ${graph.stateMachineName}State(${Object.entries(fromNodeData.values).map((value) => `${value[0]}.${value[1]}`).join(", ")})
+                new ${graph.stateMachineName}State(${Object.entries(toNodeData.values).map((value) => `${value[0]}.${value[1]}`).join(", ")})
             ));`;
         })
         .join("\n");
