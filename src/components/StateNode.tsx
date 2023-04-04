@@ -1,4 +1,4 @@
-import { Box, Card, Paper, Text, Image, Group, Badge, Button, Kbd } from '@mantine/core';
+import { Box, Card, Paper, Text, Image, Group, Badge, Button, Kbd, Code } from '@mantine/core';
 import { FC, useCallback } from 'react';
 import { Handle, Position, useStore, Node, WrapNodeProps, NodeProps } from 'reactflow';
 
@@ -70,9 +70,9 @@ export const StateNode: FC<StateNodeProps> = ({ data, id, isConnectable }) => {
                             <Text>
                                 {entry[0]}
                             </Text>
-                            <Kbd>
+                            <Code>
                                 {entry[1]}
-                            </Kbd>
+                            </Code>
                         </Group>
                     ))
                 }

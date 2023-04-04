@@ -20,6 +20,7 @@ import {
     IconCodePlus,
     IconDeviceFloppy,
     IconDownload,
+    IconFile,
     IconFileExport,
     IconLayoutGridAdd,
     IconPlus,
@@ -40,7 +41,7 @@ import { openConfirmModal } from "@mantine/modals";
 const App: FC = () => {
     const { graph, updateGraph } = useContext(GraphContext);
 
-    const { substates, addSubstate, removeSubstate, addToSubstate, removeFromSubstate } =
+    const { substates, setSubStates, addSubstate, removeSubstate, addToSubstate, removeFromSubstate } =
         useContext(SubstatesContext);
 
     const [newSubstateName, setNewSubstateName] = useState("");
@@ -134,6 +135,16 @@ const App: FC = () => {
         downloadBlob(
             new Blob([generateState(substate)], { type: "text/java" }),
             `${name}.java`
+        );
+    };
+
+    const downloadStateMachine = () => {
+        downloadBlob(
+            new Blob([JSON.stringify({
+                graph,
+                substates
+            })], { type: "text/stmch" }),
+            `${graph.stateMachineName}.stmch`
         );
     };
 
@@ -239,6 +250,49 @@ const App: FC = () => {
         });
     };
 
+    const uploadStateMachine = () => {
+        uploadBlob((data, notificationId) => {
+            updateNotification({
+                id: notificationId,
+                title: "Loading...",
+                message: `Reading State Machine...`,
+                color: "blue",
+                autoClose: false,
+                loading: true,
+            });
+
+            const stateMachine = JSON.parse(data);
+
+            if (!stateMachine || !stateMachine.graph || !stateMachine.substates) {
+                updateNotification({
+                    id: notificationId,
+                    title: "Upload Error!",
+                    message: `Failed to load the State Machine`,
+                    color: "red",
+                    autoClose: true,
+                    icon: <IconX />,
+                    loading: false,
+                });
+
+                return;
+            }
+
+            updateGraph(stateMachine.graph);
+
+            setSubStates(stateMachine.substates);
+
+            updateNotification({
+                id: notificationId,
+                title: "Upload Succeeded!",
+                message: `State Machine loaded successfully!`,
+                color: "green",
+                autoClose: true,
+                icon: <IconCheck />,
+                loading: false,
+            });
+        });
+    };
+
     return (
         <Grid
             sx={(theme) => ({
@@ -270,6 +324,28 @@ const App: FC = () => {
                                 stateMachineName: element.target.value
                             })}
                         />
+
+                        <Flex>
+                            <FileInput
+                                sx={{
+                                    flexGrow: 1
+                                }}
+                                placeholder="Select a State Machine File"
+                                onChange={(payload) => setSelectedFile(payload)}
+                                accept={"text/stmch"}
+                                my={8}
+                                rightSection={
+                                    <ActionIcon mr={6} onClick={uploadStateMachine} variant="default" size={32}>
+                                        <IconFile />
+                                    </ActionIcon>
+                                }
+                            />
+
+                            <ActionIcon onClick={downloadStateMachine} variant="default" size={36}
+                                my={8} ml={8}>
+                                <IconDeviceFloppy />
+                            </ActionIcon>
+                        </Flex>
 
                         <Divider my="sm" />
 

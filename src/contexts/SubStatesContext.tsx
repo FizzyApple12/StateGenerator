@@ -22,6 +22,7 @@ export type Substate = {
 type SubstatesContextType = {
     substates: Substate[]
 
+    setSubStates: (substates: Substate[]) => void
     addSubstate: (name: string, value: string[]) => void
     addToSubstate: (name: string, value: string) => void
     removeSubstate: (name: string) => void
@@ -31,6 +32,7 @@ type SubstatesContextType = {
 export const SubstatesContext = createContext<SubstatesContextType>(getLocalStorage("SubstatesContext") || {
     substates: [],
 
+    setSubStates: (n) => {},
     addSubstate: (n, j) => { },
     addToSubstate: (n) => { },
     removeSubstate: (n) => { },
@@ -106,6 +108,7 @@ export const SubstatesContextProvider: FC<PropsWithChildren> = ({
     return (
         <SubstatesContext.Provider value={{
             substates: substates,
+            setSubStates,
             addSubstate,
             addToSubstate,
             removeSubstate,
